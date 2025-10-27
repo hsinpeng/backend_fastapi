@@ -1,0 +1,19 @@
+// {
+//     // General editor settings
+//     "editor.fontSize": 14,
+//     "editor.rulers": [80, 120], // Add rulers at column 80 and 120
+//     "editor.wordWrap": "on",
+//     "files.autoSave": "afterDelay",
+//     "files.autoSaveDelay": 1000,
+
+//     "python.terminal.activateEnvironment": true, // Activate environment in integrated terminal
+
+//     // Settings specific to Python files
+//     "[python]": {
+//         "editor.defaultFormatter": "ms-python.python", 
+//         "editor.formatOnSave": true, // Format Python files on save
+//         "editor.codeActionsOnSave": {
+//             "source.organizeImports": "explicit" // Organize imports on save
+//         }
+//     }
+// }

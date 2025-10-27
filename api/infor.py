@@ -33,18 +33,20 @@ async def get_infor(db_session:AsyncSession = Depends(get_db)):
         "database": str(databases.fetchall())
     }
 
-
 @router.get("/test/create")
 async def test_create(db_session:AsyncSession = Depends(get_db)):
     try :
-        test_user = UserModel(email="user02@email.com", password="123456", username="user02", birthday=date(1976, 10, 4), sex=0)
+        test_user = UserModel(email="user01@email.com", password="123456", username="user01", 
+                              givenname="John", surname="Doe", birthday=date(1973, 7, 4), sex=0)
         db_session.add(test_user)
         await db_session.commit()
         await db_session.refresh(test_user)
+        result = "OK"
     except Exception as e:
-        print(e)
+        print(f'Error: {e}')
+        result = e
 
-    return test_user
+    return result
 
 @router.get("/test/read")
 async def test_read(db_session:AsyncSession = Depends(get_db)):
@@ -55,4 +57,4 @@ async def test_read(db_session:AsyncSession = Depends(get_db)):
     except Exception as e:
         print(e)
 
-    return f'{test_user.id}, {test_user.username}, {test_user.password}'        
+    return f'{test_user.id}, {test_user.username}, {test_user.password}'   
