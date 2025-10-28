@@ -1,11 +1,12 @@
-from passlib.context import CryptContext
+#from passlib.context import CryptContext
+from pwdlib import PasswordHash
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.user import User as UserModel
 from schemas.user import UserInDB
 
 ### Hash ###
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = PasswordHash.recommended() #CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

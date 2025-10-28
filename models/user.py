@@ -7,7 +7,7 @@ class User(Base):
     __tablename__ = "User"
     id:Mapped[BaseType.int_primary_key]
     email:Mapped[str] = mapped_column(String(60), unique=True)
-    password:Mapped[str] = mapped_column(String(60))
+    password:Mapped[str] = mapped_column(String(120))
     username:Mapped[str] = mapped_column(String(30), unique=True)
     givenname:Mapped[str] = mapped_column(String(30))
     surname:Mapped[str] = mapped_column(String(30))

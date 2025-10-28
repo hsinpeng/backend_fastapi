@@ -24,7 +24,7 @@ exception_invalid_login = HTTPException(
     headers={"WWW-Authenticate": "Bearer"}
 )
 
-@router.post("/login",response_model=Token)
+@router.post("/login", response_model=Token)
 async def login(form_data:login_form_schema, db_session:AsyncSession = Depends(get_db)):
     """
     Login with the following information:
@@ -50,7 +50,7 @@ async def login(form_data:login_form_schema, db_session:AsyncSession = Depends(g
         raise HTTPException(status_code=499, detail=str(e))
     
     
-@router.post("/refresh",response_model=Token)
+@router.post("/refresh", response_model=Token)
 async def refresh(refersh_data: RefreshRequest): #, token: oauth2_token_scheme):
     """
     Refresh token with the following information:
