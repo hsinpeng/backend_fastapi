@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Depends, status
-from typing import List, Optional, Union
+from fastapi import APIRouter, Depends, status, HTTPException
+from typing import List
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from utilities.database import get_db
 from utilities.tools import get_password_hash, get_user_in_db, check_user_in_db
 from models.user import User as UserModel
 from schemas import user as UserSchema
-from schemas.base import GenericResponse
 
 router = APIRouter(
     tags=["user"],
@@ -14,42 +13,37 @@ router = APIRouter(
 )
 
 ### query user ###
-@router.get("/all", response_model=GenericResponse[Optional[List[UserSchema.UserRead]]], response_description="Get list of user", )
+@router.get("/all", response_model=List[UserSchema.UserRead], response_description="Get list of user", )
 async def user_read_all(db_session:AsyncSession = Depends(get_db)):
     try :
         stmt = select(UserModel)
         response = await db_session.execute(stmt)
         rows = response.scalars().all()
-        result = {"message": "OK", "data":rows}
+        return rows
     except Exception as e:
-        result = {"message": f"Error: {e}", "data":None}
+        raise HTTPException(status_code=499, detail=str(e))
 
-    return result
 
-@router.get("/email/{email}", response_model=GenericResponse[Optional[Union[str,UserSchema.UserRead]]], response_description="Get user by email", )
+@router.get("/email/{email}", response_model=UserSchema.UserRead, response_description="Get user by email", )
 async def user_read_by_email(email:str, db_session:AsyncSession = Depends(get_db)):
     try :
-        # stmt = select(UserModel).where(UserModel.email == email)
-        # result = await db_session.execute(stmt)
-        # row = result.scalars().first()
         user:UserSchema.UserInDB = await get_user_in_db(email=email, username='', db_session=db_session)
         if user:
-            result = {"message": "OK", "data":user}
+            return user
         else:
-            result = {"message": "No user", "data":email}
+            raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
-        result = {"message": f"Error: {e}", "data":None}
+        raise HTTPException(status_code=499, detail=str(e))
 
-    return result
 
 ### create user ###
-@router.post("/create", response_model=GenericResponse[Optional[UserSchema.UserCreateResponse]], status_code=status.HTTP_201_CREATED, response_description="Create new user")
+@router.post("/create", response_model=UserSchema.UserCreateResponse, status_code=status.HTTP_201_CREATED, response_description="Create new user")
 async def create_user(newUser: UserSchema.UserCreate, db_session:AsyncSession = Depends(get_db)):
     try :
         # check if user already exists
         isExist = await check_user_in_db(email=newUser.email, username=newUser.username, db_session=db_session)
         if isExist:
-            result = {"message": "User already exists", "data":None}
+            raise HTTPException(status_code=405, detail="User already exists")
         else:
             # create user
             user = UserModel(
@@ -64,16 +58,13 @@ async def create_user(newUser: UserSchema.UserCreate, db_session:AsyncSession = 
             db_session.add(user)
             await db_session.commit()
             await db_session.refresh(user)
-            result = {"message": "OK", "data":user}
+            return user
     except Exception as e:
-        print(f'Error: {e}')
-        result = {"message": f"Error: {e}", "data":None}
-
-    return result
+        raise HTTPException(status_code=499, detail=str(e))
 
 
 ### update user info###
-@router.put("/update/info", status_code=200, response_model=GenericResponse[Optional[UserSchema.UserUpdateResponse]], response_description="Update user info")
+@router.put("/update/info", status_code=200, response_model=UserSchema.UserUpdateResponse, response_description="Update user info")
 async def update_user_info(newUser:UserSchema.UserUpdate, db_session:AsyncSession = Depends(get_db)):
     try :
         # check if user already exists
@@ -87,16 +78,15 @@ async def update_user_info(newUser:UserSchema.UserUpdate, db_session:AsyncSessio
             )
             await db_session.execute(stmt)
             await db_session.commit()
-            result = {"message": "User info update OK", "data": newUser}
+            return newUser
         else:
-            result = {"message": "No such user to update info", "data": newUser}
+            raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
-        result = {"message": f"Error: {e}", "data":None}
+        raise HTTPException(status_code=499, detail=str(e))
 
-    return result
 
 ### update password ###
-@router.put("/update/password", status_code=200, response_model=GenericResponse[Optional[str]], response_description="Update password")
+@router.put("/update/password", status_code=200, response_model=str, response_description="Update password")
 async def update_user_password(newUser:UserSchema.UserUpdatePassword, db_session:AsyncSession = Depends(get_db)):
     try :
         # check if user already exists
@@ -107,16 +97,15 @@ async def update_user_password(newUser:UserSchema.UserUpdatePassword, db_session
             )
             await db_session.execute(stmt)
             await db_session.commit()
-            result = {"message": "Passowrd update OK", "data": newUser.email}
+            return f'password of {newUser.email} has been changed'
         else:
-            result = {"message": "No such user to update password", "data": newUser.email}
+            raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
-        result = {"message": f"Error: {e}", "data":None}
-
-    return result
+        raise HTTPException(status_code=499, detail=str(e))
+    
 
 ### delete user ###
-@router.delete("/email/{email}", response_model=GenericResponse[Optional[str]], response_description="Delete user by email", )
+@router.delete("/email/{email}", response_model=str, response_description="Delete user by email", )
 async def user_remove_by_email(email:str, db_session:AsyncSession = Depends(get_db)):
     try :
         # check if user already exists
@@ -125,10 +114,9 @@ async def user_remove_by_email(email:str, db_session:AsyncSession = Depends(get_
             stmt = delete(UserModel).where(UserModel.email == email)
             await db_session.execute(stmt)
             await db_session.commit()
-            result = {"message": "Delete OK", "data": email}
+            return f'account of {email} has been deleted'
         else:
-            result = {"message": "No such user to delete", "data": email}
+            raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
-        result = {"message": f"Error: {e}", "data":None}
+        raise HTTPException(status_code=499, detail=str(e))
 
-    return result
