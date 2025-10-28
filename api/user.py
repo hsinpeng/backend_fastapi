@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from typing import List, Optional, Union
-from sqlalchemy import or_, select, update, delete
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from utilities.database import get_db
-from utilities.tools import get_password_hash
+from utilities.tools import get_password_hash, get_user_in_db, check_user_in_db
 from models.user import User as UserModel
 from schemas import user as UserSchema
 from schemas.base import GenericResponse
@@ -32,7 +32,7 @@ async def user_read_by_email(email:str, db_session:AsyncSession = Depends(get_db
         # stmt = select(UserModel).where(UserModel.email == email)
         # result = await db_session.execute(stmt)
         # row = result.scalars().first()
-        user = await get_user_in_db(email=email, username='', db_session=db_session)
+        user:UserSchema.UserInDB = await get_user_in_db(email=email, username='', db_session=db_session)
         if user:
             result = {"message": "OK", "data":user}
         else:
@@ -132,33 +132,3 @@ async def user_remove_by_email(email:str, db_session:AsyncSession = Depends(get_
         result = {"message": f"Error: {e}", "data":None}
 
     return result
-
-### tools ###
-async def get_user_in_db(email:str, username:str, db_session:AsyncSession) -> UserModel :
-    stmt = select(UserModel).where(or_(UserModel.username == username, UserModel.email == email))
-    result = await db_session.execute(stmt)
-    user = result.scalars().first()
-    if user:
-        return user
-    else:
-        return None
-    
-async def check_user_in_db(email:str, username:str, db_session:AsyncSession) -> bool :
-    # stmt = select(UserModel).where(or_(UserModel.username == username, UserModel.email == email))
-    # result = await db_session.execute(stmt)
-    # user = result.first()
-    user = get_user_in_db(email=email, username=username, db_session=db_session)
-    if user:
-        return True
-    else:
-        return False
-#@router.get("/check")
-# async def check_user_in_db(email:str, username:str, db_session:AsyncSession = Depends(get_db)) -> bool :
-#     stmt = select(UserModel).where(or_(UserModel.username == username, UserModel.email == email))
-#     result = await db_session.execute(stmt)
-#     user = result.first()
-#     if user:
-#         return True
-#     else:
-#         return False
-    
