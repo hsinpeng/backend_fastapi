@@ -4,7 +4,7 @@ from utilities.tools import parse_boolean
 
 @lru_cache()
 def get_settings():
-    #load_dotenv(f".env.{os.getenv('APP_MODE')}") # 多此一舉？
+    #load_dotenv(f".env.{os.getenv('APP_MODE')}") # useless?
     return Settings()
 
 class Settings():

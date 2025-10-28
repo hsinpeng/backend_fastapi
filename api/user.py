@@ -1,9 +1,9 @@
-import json
 from fastapi import APIRouter, Depends, status
-from typing import List, Optional
+from typing import List, Optional, Union
 from sqlalchemy import or_, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from utilities.database import get_db
+from utilities.tools import get_password_hash
 from models.user import User as UserModel
 from schemas import user as UserSchema
 from schemas.base import GenericResponse
@@ -26,16 +26,17 @@ async def user_read_all(db_session:AsyncSession = Depends(get_db)):
 
     return result
 
-@router.get("/email/{email}", response_model=GenericResponse[Optional[UserSchema.UserRead]], response_description="Get user by email", )
+@router.get("/email/{email}", response_model=GenericResponse[Optional[Union[str,UserSchema.UserRead]]], response_description="Get user by email", )
 async def user_read_by_email(email:str, db_session:AsyncSession = Depends(get_db)):
     try :
-        stmt = select(UserModel).where(UserModel.email == email)
-        result = await db_session.execute(stmt)
-        row = result.scalars().first()
-        if row:
-            result = {"message": "OK", "data":row}
+        # stmt = select(UserModel).where(UserModel.email == email)
+        # result = await db_session.execute(stmt)
+        # row = result.scalars().first()
+        user = await get_user_in_db(email=email, username='', db_session=db_session)
+        if user:
+            result = {"message": "OK", "data":user}
         else:
-            result = {"message": "No user", "data":row}
+            result = {"message": "No user", "data":email}
     except Exception as e:
         result = {"message": f"Error: {e}", "data":None}
 
@@ -48,14 +49,12 @@ async def create_user(newUser: UserSchema.UserCreate, db_session:AsyncSession = 
         # check if user already exists
         isExist = await check_user_in_db(email=newUser.email, username=newUser.username, db_session=db_session)
         if isExist:
-            #raise HTTPException(status_code=409, detail=f"User already exists")
             result = {"message": "User already exists", "data":None}
         else:
             # create user
-            #newUser.password = get_password_hash(newUser.password) # hash password
             user = UserModel(
                 email=newUser.email,
-                password=newUser.password, #get_password_hash(newUser.password),
+                password=get_password_hash(newUser.password), #newUser.password,
                 username=newUser.username,
                 givenname=newUser.givenname,
                 surname=newUser.surname,
@@ -104,7 +103,7 @@ async def update_user_password(newUser:UserSchema.UserUpdatePassword, db_session
         isExist = await check_user_in_db(email=newUser.email, username='', db_session=db_session)
         if isExist:
             stmt = update(UserModel).where(UserModel.email == newUser.email).values(
-                password=newUser.password, #get_password_hash(newUser.password),
+                password=get_password_hash(newUser.password), #newUser.password,
             )
             await db_session.execute(stmt)
             await db_session.commit()
@@ -128,7 +127,6 @@ async def user_remove_by_email(email:str, db_session:AsyncSession = Depends(get_
             await db_session.commit()
             result = {"message": "Delete OK", "data": email}
         else:
-            #raise HTTPException(status_code=409, detail=f"User already exists")
             result = {"message": "No such user to delete", "data": email}
     except Exception as e:
         result = {"message": f"Error: {e}", "data":None}
@@ -136,10 +134,20 @@ async def user_remove_by_email(email:str, db_session:AsyncSession = Depends(get_
     return result
 
 ### tools ###
-async def check_user_in_db(email:str, username:str, db_session:AsyncSession) -> bool :
+async def get_user_in_db(email:str, username:str, db_session:AsyncSession) -> UserModel :
     stmt = select(UserModel).where(or_(UserModel.username == username, UserModel.email == email))
     result = await db_session.execute(stmt)
-    user = result.first()
+    user = result.scalars().first()
+    if user:
+        return user
+    else:
+        return None
+    
+async def check_user_in_db(email:str, username:str, db_session:AsyncSession) -> bool :
+    # stmt = select(UserModel).where(or_(UserModel.username == username, UserModel.email == email))
+    # result = await db_session.execute(stmt)
+    # user = result.first()
+    user = get_user_in_db(email=email, username=username, db_session=db_session)
     if user:
         return True
     else:

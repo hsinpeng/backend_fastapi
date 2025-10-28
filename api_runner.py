@@ -1,5 +1,6 @@
 from utilities.database import init_db, close_db
 from api.infor import router as infor_router
+from api.auth import router as auth_router
 from api.user import router as user_router
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -16,4 +17,5 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(infor_router)
+app.include_router(auth_router)
 app.include_router(user_router)

@@ -8,7 +8,10 @@ dependencies = [
     "asyncpg>=0.30.0",
     "fastapi>=0.120.0",
     "greenlet>=3.2.4",
+    "passlib>=1.7.4",
     "python-dotenv>=1.2.1",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.20",
     "sqlalchemy>=2.0.44",
     "uvicorn>=0.38.0",
 ]
