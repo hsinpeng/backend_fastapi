@@ -13,7 +13,8 @@ class UserInDB(BaseModel):
     givenname: str
     surname: str
     birthday: date
-    sex: int
+    gender: int
+    active: bool
     
 class UserRead(UserBase):
     id: int
@@ -22,16 +23,18 @@ class UserRead(UserBase):
     givenname: str
     surname: str
     birthday: date
-    sex: int
+    gender: int
+    active: bool
 
 class UserCreate(UserBase):
     email: str
     password: str
     username: str
-    givenname: Optional[str] = Field(min_length=2)
-    surname: Optional[str] = Field(min_length=2)
+    givenname: Optional[str] = Field('John', min_length=2)
+    surname: Optional[str] = Field('Doe', min_length=2)
     birthday: date
-    sex: int
+    gender: int = 1
+    active: bool = True
 
 class UserCreateResponse(UserBase):
     id: int
@@ -39,20 +42,23 @@ class UserCreateResponse(UserBase):
     username: str
     givenname: str
     surname: str
+    active: bool
 
 class UserUpdate(UserBase):
     email: str
     givenname: str
     surname: str
     birthday: date
-    sex: int
+    gender: int
+    active: bool
     
 class UserUpdateResponse(UserBase):
     email: str
     givenname: str
     surname: str
     birthday: date
-    sex: int
+    gender: int
+    active: bool
 
 class UserUpdatePassword(BaseModel):
     email: str

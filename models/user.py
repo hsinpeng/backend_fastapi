@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from sqlalchemy import Date, DateTime, String, Integer
+from sqlalchemy import Date, DateTime, String, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from models.base import Base, BaseType
 
@@ -12,17 +12,20 @@ class User(Base):
     givenname:Mapped[str] = mapped_column(String(30))
     surname:Mapped[str] = mapped_column(String(30))
     birthday:Mapped[date] = mapped_column(Date)
-    sex:Mapped[int] = mapped_column(Integer)
+    gender:Mapped[int] = mapped_column(Integer)
+    active:Mapped[bool] = mapped_column(Boolean)
     create_time:Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    def __init__(self, email:str, password:str, username:str, givenname:str, surname:str, birthday:date,  sex:int) -> None:
+    def __init__(self, email:str, password:str, username:str, givenname:str, surname:str, birthday:date, gender:int, active:bool) -> None:
         self.email = email
         self.password = password  # password should be hashed before store in database
         self.username = username
         self.givenname = givenname
         self.surname = surname
         self.birthday = birthday
-        self.sex = sex
+        self.gender = gender
+        self.active = active
+
 
     def __repr__(self) -> str:
-        return f"User(id={self.id}, email={self.email}, password={self.password}, name={self.username}, name={self.givenname}, name={self.surname}, birthday={self.birthday}, sex={self.sex})"
+        return f"User(id={self.id}, email={self.email}, password={self.password}, name={self.username}, name={self.givenname}, name={self.surname}, birthday={self.birthday}, gender={self.gender}, active={self.active})"
