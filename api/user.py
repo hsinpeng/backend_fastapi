@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from utilities.database import get_db
-from utilities.tools import get_password_hash, get_user_in_db, check_user_in_db, check_user_in_db_active
+from utilities.tools import get_password_hash, get_user_in_db, check_user_in_db
 from models.user import User as UserModel
 from schemas import user as UserSchema
 
@@ -12,7 +12,6 @@ router = APIRouter(
     prefix="/user"
 )
 
-isUserValid:int = Depends(check_user_in_db_active)
 
 ### query user ###
 @router.get("/all", response_model=List[UserSchema.UserRead], response_description="Get list of user", )

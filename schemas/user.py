@@ -27,9 +27,9 @@ class UserRead(UserBase):
     active: bool
 
 class UserCreate(UserBase):
-    email: str
-    password: str
-    username: str
+    email: str = 'user@email.com'
+    password: str = '123456'
+    username: str = 'user'
     givenname: Optional[str] = Field('John', min_length=2)
     surname: Optional[str] = Field('Doe', min_length=2)
     birthday: date
@@ -45,12 +45,12 @@ class UserCreateResponse(UserBase):
     active: bool
 
 class UserUpdate(UserBase):
-    email: str
-    givenname: str
-    surname: str
+    email: str = 'user@email.com'
+    givenname: Optional[str] = Field('John', min_length=2)
+    surname: Optional[str] = Field('Doe', min_length=2)
     birthday: date
-    gender: int
-    active: bool
+    gender: int = 1
+    active: bool = True
     
 class UserUpdateResponse(UserBase):
     email: str
@@ -61,5 +61,5 @@ class UserUpdateResponse(UserBase):
     active: bool
 
 class UserUpdatePassword(BaseModel):
-    email: str
-    password:str
+    email: str = 'user@email.com'
+    password:str = '123456'
