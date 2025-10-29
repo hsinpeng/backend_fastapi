@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from typing import List
+from typing import List, Annotated
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from utilities.jwt import verify_access_token
 from utilities.database import get_db
-from utilities.tools import get_password_hash, get_user_in_db, check_user_in_db
+from utilities.tools import get_password_hash, get_user_in_db, check_user_in_db, oauth2_scheme
 from models.user import User as UserModel
 from schemas import user as UserSchema
 
@@ -12,8 +13,22 @@ router = APIRouter(
     prefix="/user"
 )
 
-
 ### query user ###
+@router.get("/me", response_model=UserSchema.UserRead, response_description="Get list of user")
+async def user_read_me(token:Annotated[str, Depends(oauth2_scheme)], db_session:Annotated[AsyncSession, Depends(get_db)]):
+    try :
+        payload : dict = await verify_access_token(token)
+        u_id:int = payload.get("id")
+        username: str = payload.get("username")
+        user:UserSchema.UserInDB = await get_user_in_db(id=u_id, username=username, email='', db_session=db_session)
+        if user:
+            return user
+        else:
+            raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        raise HTTPException(status_code=499, detail=str(e))
+
+
 @router.get("/all", response_model=List[UserSchema.UserRead], response_description="Get list of user", )
 async def user_read_all(db_session:AsyncSession = Depends(get_db)):
     try :

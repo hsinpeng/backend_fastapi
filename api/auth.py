@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
 #from typing import Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.auth import login_form_schema, Token, RefreshRequest
 from schemas.user import UserInDB
-from utilities.tools import verify_password, get_user_in_db
-from utilities.jwt import create_token_pair, verify_refresh_token
+from utilities.tools import verify_password, get_user_in_db, oauth2_scheme
+from utilities.jwt import create_token_pair, verify_refresh_token, verify_access_token
 from utilities.database import get_db
 
 router = APIRouter(
@@ -51,7 +52,7 @@ async def login(form_data:login_form_schema, db_session:AsyncSession = Depends(g
     
     
 @router.post("/refresh", response_model=Token)
-async def refresh(refersh_data: RefreshRequest): #, token: oauth2_token_scheme):
+async def refresh(refersh_data: RefreshRequest, token: Annotated[str, Depends(oauth2_scheme)]): # refersh_data: RefreshRequest): #, token: oauth2_token_scheme):
     """
     Refresh token with the following information:
 
@@ -59,6 +60,9 @@ async def refresh(refersh_data: RefreshRequest): #, token: oauth2_token_scheme):
 
     """
     try:
+        accessPayload : dict = await verify_access_token(token)
+        print(f'token={token}, accessPayload={accessPayload}')
+        #######################
         payload : dict = await verify_refresh_token(refersh_data.refresh_token)
         username: str = payload.get("username")
         u_id:int = payload.get("id")
