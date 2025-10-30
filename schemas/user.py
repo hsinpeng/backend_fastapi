@@ -2,6 +2,10 @@ from typing import Union, Optional
 from datetime import date
 from pydantic import BaseModel, Field
 
+# class Item(BaseModel):
+#     title: str
+#     content: str
+
 class UserBase(BaseModel):
     email: str
 
@@ -18,13 +22,16 @@ class UserInDB(BaseModel):
     
 class UserRead(UserBase):
     id: int
-    email: str
+    email: str = 'user@email.com'
     username: str
     givenname: str
     surname: str
     birthday: date
     gender: int
     active: bool
+    # items: list[Item] = []
+    # class Config:
+    #     orm_mode = True
 
 class UserCreate(UserBase):
     email: str = 'user@email.com'

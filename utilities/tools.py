@@ -2,7 +2,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy import or_, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User as UserModel
+from models.user import DbUser as UserModel
 from schemas.user import UserInDB
 from fastapi.security import OAuth2PasswordBearer
 
@@ -24,6 +24,26 @@ def parse_boolean(value):
         return False
     return value.lower() in ('true', '1', 'yes', 'on')
 
+async def get_user_by_id(id:int, db_session:AsyncSession) -> UserInDB :
+    if(db_session == None):
+        print('Error: No db_session in get_user_in_db()')
+        return None
+    
+    stmt = select(UserModel).where(UserModel.id == id)    
+    result = await db_session.execute(stmt)
+    user:UserInDB = result.scalars().first()
+    if user:
+        return user
+    else:
+        return None
+
+async def check_user_by_id(id:int, db_session:AsyncSession) -> bool :
+    user:UserInDB = await get_user_by_id(id=id, db_session=db_session)
+    if user:
+        return True
+    else:
+        return False
+    
 async def get_user_in_db(email:str, username:str, db_session:AsyncSession, id:int=None) -> UserInDB :
     if(db_session == None):
         print('Error: No db_session in get_user_in_db()')

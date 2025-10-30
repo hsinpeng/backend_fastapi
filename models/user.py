@@ -1,9 +1,9 @@
 from datetime import date, datetime
 from sqlalchemy import Date, DateTime, String, Integer, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from models.base import Base, BaseType
 
-class User(Base):
+class DbUser(Base):
     __tablename__ = "User"
     id:Mapped[BaseType.int_primary_key]
     email:Mapped[str] = mapped_column(String(60), unique=True)
@@ -14,6 +14,7 @@ class User(Base):
     birthday:Mapped[date] = mapped_column(Date)
     gender:Mapped[int] = mapped_column(Integer)
     active:Mapped[bool] = mapped_column(Boolean)
+    # items:Mapped[list["DbItem"]] = relationship("DbItem", back_populates="owner", lazy="noload", cascade="all, delete-orphan")
     create_time:Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     def __init__(self, email:str, password:str, username:str, givenname:str, surname:str, birthday:date, gender:int, active:bool) -> None:
@@ -28,4 +29,4 @@ class User(Base):
 
 
     def __repr__(self) -> str:
-        return f"User(id={self.id}, email={self.email}, password={self.password}, name={self.username}, name={self.givenname}, name={self.surname}, birthday={self.birthday}, gender={self.gender}, active={self.active})"
+        return f"DbUser(id={self.id}, email={self.email}, password={self.password}, name={self.username}, name={self.givenname}, name={self.surname}, birthday={self.birthday}, gender={self.gender}, active={self.active})"
