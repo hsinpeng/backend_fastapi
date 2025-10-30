@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Annotated
-#from typing import Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.auth import login_form_schema, Token, RefreshRequest
 from schemas.user import UserInDB

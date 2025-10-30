@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 ### Hash ###
-pwd_context = PasswordHash.recommended() #CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = PasswordHash.recommended()
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -49,9 +49,9 @@ async def get_user_in_db(email:str, username:str, db_session:AsyncSession, id:in
         print('Error: No db_session in get_user_in_db()')
         return None
     if (id == None):
-        stmt = select(UserModel).where(or_(UserModel.username == username, UserModel.email == email))
+        stmt = select(UserModel).where(or_(UserModel.username==username, UserModel.email==email))
     else:
-        stmt = select(UserModel).where(and_(UserModel.id == id, UserModel.username == username))
+        stmt = select(UserModel).where(and_(UserModel.id==id, UserModel.username==username))
         
     result = await db_session.execute(stmt)
     user:UserInDB = result.scalars().first()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from typing import List, Annotated
-from sqlalchemy import select, update, delete, and_, or_
+from typing import List
+from sqlalchemy import select, update, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from utilities.database import get_db
 from utilities.tools import check_user_by_id
@@ -88,3 +88,10 @@ async def create_item(newItem: ItemSchema.ItemCreate, db_session:AsyncSession = 
             return item
     except Exception as e:
         raise HTTPException(status_code=499, detail=str(e))
+    
+
+### update item ###
+
+
+
+### delete item ###
