@@ -21,7 +21,6 @@ async def get_item_in_db(title:str, db_session:AsyncSession, id:int=None) -> Ite
         stmt = select(ItemModel).where(ItemModel.title == title)
     else:
         stmt = select(ItemModel).where(and_(ItemModel.id == id, ItemModel.title == title))
-        
     result = await db_session.execute(stmt)
     item:ItemSchema.ItemInDB = result.scalars().first()
     if item:
@@ -70,7 +69,6 @@ async def create_item(newItem: ItemSchema.ItemCreate, db_session:AsyncSession = 
         isExist = await check_user_by_id(id=newItem.owner_id, db_session=db_session)
         if (isExist is not True):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User ID({newItem.owner_id}) does not exist")
-
         # check if item already exists
         isExist = await check_item_in_db(title=newItem.title, db_session=db_session)
         if isExist:
