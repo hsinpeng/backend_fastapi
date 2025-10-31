@@ -58,7 +58,7 @@ async def item_read_by_id(id:int, db_session:AsyncSession = Depends(get_db)):
         if item is not None:
             return item
         else:
-            raise HTTPException(status_code=404, detail=f"Item ID({id}) does not exist")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Item ID({id}) does not exist")
     except Exception as e:
         raise HTTPException(status_code=499, detail=str(e))
 
@@ -69,12 +69,12 @@ async def create_item(newItem: ItemSchema.ItemCreate, db_session:AsyncSession = 
         # check if owner_id already exists
         isExist = await check_user_by_id(id=newItem.owner_id, db_session=db_session)
         if (isExist is not True):
-            raise HTTPException(status_code=404, detail=f"User ID({newItem.owner_id}) does not exist")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User ID({newItem.owner_id}) does not exist")
 
         # check if item already exists
         isExist = await check_item_in_db(title=newItem.title, db_session=db_session)
         if isExist:
-            raise HTTPException(status_code=405, detail=f"Item title({newItem.title}) already exists")
+            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=f"Item title({newItem.title}) already exists")
         else:
             # create item
             item = ItemModel(
@@ -91,7 +91,36 @@ async def create_item(newItem: ItemSchema.ItemCreate, db_session:AsyncSession = 
     
 
 ### update item ###
-
+@router.put("/update/content", status_code=200, response_model=ItemSchema.ItemUpdateResponse, response_description="Update item content")
+async def update_item(newItem:ItemSchema.ItemUpdate, db_session:AsyncSession = Depends(get_db)):
+    try :
+        # check if item already exists
+        isExist = await check_item_in_db(title=newItem.title, db_session=db_session)
+        if isExist:
+            stmt = update(ItemModel).where(ItemModel.title == newItem.title).values(
+                content=newItem.content,
+            )
+            await db_session.execute(stmt)
+            await db_session.commit()
+            return newItem
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Item.title = {newItem.title} not found")
+    except Exception as e:
+        raise HTTPException(status_code=499, detail=str(e))
 
 
 ### delete item ###
+@router.delete("/title/{title}", response_model=str, response_description="Delete item by title", )
+async def item_remove_by_title(title:str, db_session:AsyncSession = Depends(get_db)):
+    try :
+        # check if item already exists
+        isExist = await check_item_in_db(title=title, db_session=db_session)
+        if isExist:
+            stmt = delete(ItemModel).where(ItemModel.title == title)
+            await db_session.execute(stmt)
+            await db_session.commit()
+            return f'Item.title = {title} has been deleted'
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Item.title = {title} not found")
+    except Exception as e:
+        raise HTTPException(status_code=499, detail=str(e))

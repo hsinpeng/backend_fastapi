@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.auth import login_form_schema, Token, RefreshRequest
@@ -13,13 +13,13 @@ router = APIRouter(
 )
 
 exception_invalid_token = HTTPException(
-    status_code=401,
+    status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Invalid token",
     headers={"WWW-Authenticate": "Bearer"}
 )
 
 exception_invalid_login = HTTPException(
-    status_code=401,
+    status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Incorrect username or password",
     headers={"WWW-Authenticate": "Bearer"}
 )
@@ -65,7 +65,7 @@ async def refresh(refersh_data: RefreshRequest, token: Annotated[str, Depends(oa
         payload : dict = await verify_refresh_token(refersh_data.refresh_token)
         if payload is None:
             raise HTTPException(
-                status_code=401,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
                 headers={"WWW-Authenticate": "Bearer"}
             )
@@ -74,7 +74,7 @@ async def refresh(refersh_data: RefreshRequest, token: Annotated[str, Depends(oa
         if username is None or u_id is None:
             #raise  exception_invalid_token
             raise  HTTPException(
-                status_code=401,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token ( No `username` in payload )",
                 headers={"WWW-Authenticate": "Bearer"}
             )

@@ -24,7 +24,7 @@ async def user_read_me(token:Annotated[str, Depends(oauth2_scheme)], db_session:
         if user:
             return user
         else:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     except Exception as e:
         raise HTTPException(status_code=499, detail=str(e))
 
@@ -47,7 +47,7 @@ async def user_read_by_email(email:str, db_session:AsyncSession = Depends(get_db
         if user:
             return user
         else:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     except Exception as e:
         raise HTTPException(status_code=499, detail=str(e))
 
@@ -59,7 +59,7 @@ async def create_user(newUser: UserSchema.UserCreate, db_session:AsyncSession = 
         # check if user already exists
         isExist = await check_user_in_db(email=newUser.email, username=newUser.username, db_session=db_session)
         if isExist:
-            raise HTTPException(status_code=405, detail="User already exists")
+            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="User already exists")
         else:
             # create user
             user = UserModel(
@@ -98,7 +98,7 @@ async def update_user_info(newUser:UserSchema.UserUpdate, db_session:AsyncSessio
             await db_session.commit()
             return newUser
         else:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     except Exception as e:
         raise HTTPException(status_code=499, detail=str(e))
 
@@ -117,7 +117,7 @@ async def update_user_password(newUser:UserSchema.UserUpdatePassword, db_session
             await db_session.commit()
             return f'password of {newUser.email} has been changed'
         else:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     except Exception as e:
         raise HTTPException(status_code=499, detail=str(e))
     
@@ -134,7 +134,7 @@ async def user_remove_by_email(email:str, db_session:AsyncSession = Depends(get_
             await db_session.commit()
             return f'account of {email} has been deleted'
         else:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     except Exception as e:
         raise HTTPException(status_code=499, detail=str(e))
 
