@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from setting.config import get_settings
+settings = get_settings()
 
 router = APIRouter(
     tags=["infor"],
@@ -7,4 +9,4 @@ router = APIRouter(
 
 @router.get("/")
 def hello_world():
-    return "Hello FastAPI!"
+    return {"App Name": settings.app_name, "Author": settings.author}

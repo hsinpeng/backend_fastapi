@@ -8,15 +8,20 @@ def get_settings():
     return Settings()
 
 class Settings():
-    app_name:str = "FastAPI Server"
+    # app info
+    app_name:str = "A General FastAPI Server"
     author:str = "Sheldon Lin"
 
+    # run setup
     app_mode:str = os.getenv("APP_MODE")
     port_tmp = os.getenv("PORT")
     if port_tmp is not None:
         port:int = int(port_tmp)
     reload:bool = parse_boolean(os.getenv("RELOAD"))
-    
+
+    # storage
+    local_storage_path: str = os.getenv("LOCAL_STORAGE_PATH")
+    static_storage_path: str = os.getenv("STATIC_STORAGE_PATH")
     # database
     database_url:str = os.getenv("DATABASE_URL") 
 
