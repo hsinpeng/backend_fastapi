@@ -7,6 +7,7 @@ from api.user import router as user_router
 from api.item import router as item_router
 from api.file import router as file_router
 from api.chat import router as chat_router
+from api.ocr import router as ocr_router
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, Request
@@ -30,6 +31,7 @@ app.include_router(user_router)
 app.include_router(item_router)
 app.include_router(file_router)
 app.include_router(chat_router)
+app.include_router(ocr_router)
 
 # CORS
 origins = [
