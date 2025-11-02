@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 ### upload file ###
-@router.post("/file")
+@router.post("/text")
 async def post_display_file(upload_file:bytes = File(...)):
     try:
         content = upload_file.decode('utf-8')
