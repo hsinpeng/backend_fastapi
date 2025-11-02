@@ -1,6 +1,6 @@
 import time
 from utilities.database import init_db_storage, close_db_storage #init_db, close_db
-from setting.config import get_settings
+from utilities.config import get_settings
 from api.infor import router as infor_router
 from api.auth import router as auth_router
 from api.user import router as user_router

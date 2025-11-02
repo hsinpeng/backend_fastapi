@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from fastapi import APIRouter, File, UploadFile, HTTPException, status
 from fastapi.responses import FileResponse
-from setting.config import get_settings
+from utilities.config import get_settings
 settings = get_settings()
 
 router = APIRouter(
@@ -13,10 +13,13 @@ router = APIRouter(
 ### upload file ###
 @router.post("/file")
 async def post_display_file(upload_file:bytes = File(...)):
-    content = upload_file.decode('utf-8')
-    lines = content.split('\n')
-    return lines
-
+    try:
+        content = upload_file.decode('utf-8')
+        lines = content.split('\n')
+        return lines
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    
 @router.post("/upload")
 async def post_upload_file(upload_file:UploadFile = File(...)):
     try: 

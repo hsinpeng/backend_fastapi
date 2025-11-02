@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 from sqlalchemy.ext.asyncio import create_async_engine , async_sessionmaker
 from sqlalchemy.schema import CreateTable
-from setting.config import get_settings
+from utilities.config import get_settings
 from models.user import DbUser as UserModel
 from models.item import DbItem as ItemModel
 

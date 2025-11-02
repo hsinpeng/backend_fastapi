@@ -3,7 +3,7 @@ from jose import jwt
 from jose.exceptions import ExpiredSignatureError , JWTError
 from fastapi import HTTPException
 
-from setting.config import get_settings
+from utilities.config import get_settings
 from schemas.auth import Token
 
 ### JWT token ###
