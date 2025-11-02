@@ -32,7 +32,13 @@ COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:${PATH}"
 
 # Copy your application code
-COPY main.py api_runner.py api/ models/ schemas/ setting/ static_data/ utilities/ ./
+COPY main.py api_runner.py ./
+COPY api/ ./api/
+COPY models/ ./models/
+COPY schemas/ ./schemas/
+COPY setting/ ./setting/
+COPY static_data/ ./static_data/
+COPY utilities/ ./utilities/
 
 # Define the command to run your application
 CMD ["uv", "run", "main.py", "--dev"]
